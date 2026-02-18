@@ -1,8 +1,12 @@
 class ApiEndpoints {
   ApiEndpoints._();
 
-  // Base URL - change for production
-  static const String baseUrl = 'http://localhost:8080/api/v1';
+  // Base URL — injected at build time via --dart-define=API_BASE_URL=...
+  // Falls back to localhost for local development
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://localhost:8080/api/v1',
+  );
 
   // Auth
   static const String register = '/auth/register';
