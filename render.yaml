@@ -1,0 +1,50 @@
+# render.yaml — Render Blueprint for one-click deploy
+# https://render.com/docs/blueprint-spec
+
+databases:
+  - name: makeitexist-db
+    plan: free
+    databaseName: makeitexist
+    user: makeitexist
+
+services:
+  - type: web
+    name: makeitexist
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: SERVER_PORT
+        value: "8080"
+      - key: SERVER_ENV
+        value: production
+      - key: FRONTEND_DIR
+        value: /app/static
+      - key: DB_HOST
+        fromDatabase:
+          name: makeitexist-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: makeitexist-db
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: makeitexist-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: makeitexist-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: makeitexist-db
+          property: database
+      - key: DB_SSLMODE
+        value: require
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AIM_EMAIL_DOMAIN
+        value: aim.edu
+      - key: CORS_ALLOWED_ORIGINS
+        value: "*"

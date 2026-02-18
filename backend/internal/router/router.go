@@ -1,7 +1,11 @@
 package router
 
 import (
+	"mime"
 	"net/http"
+	"os"
+	"path"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/makeitexist/backend/internal/config"
@@ -85,5 +89,54 @@ func Setup(
 		admin.POST("/schedule/generate", scheduleHandler.GenerateSlots)
 	}
 
+	// ── Serve Flutter Web Frontend (SPA) ─────────────────────────
+	// Resolve the static directory from env or default
+	webDir := os.Getenv("FRONTEND_DIR")
+	if webDir == "" {
+		webDir = "../frontend/build/web" // default for local dev
+	}
+
+	// Register WASM/JS MIME types
+	mime.AddExtensionType(".wasm", "application/wasm")
+	mime.AddExtensionType(".js", "text/javascript")
+
+	// Serve static files and SPA fallback at /
+	r.Use(serveSPA(webDir))
+
 	return r
+}
+
+// serveSPA returns middleware that serves static files from webDir.
+// For any path that doesn't match a real file AND doesn't start with /api/,
+// it serves index.html (SPA client-side routing fallback).
+func serveSPA(webDir string) gin.HandlerFunc {
+	fileServer := http.FileServer(http.Dir(webDir))
+
+	return func(c *gin.Context) {
+		urlPath := c.Request.URL.Path
+
+		// Never intercept API or health routes
+		if strings.HasPrefix(urlPath, "/api/") || urlPath == "/health" {
+			c.Next()
+			return
+		}
+
+		// Check if the requested file exists on disk
+		filePath := path.Join(webDir, path.Clean(urlPath))
+		info, err := os.Stat(filePath)
+		if err != nil || info.IsDir() {
+			// File not found or is a directory → serve index.html (SPA fallback)
+			c.Header("Cross-Origin-Embedder-Policy", "credentialless")
+			c.Header("Cross-Origin-Opener-Policy", "same-origin")
+			c.File(path.Join(webDir, "index.html"))
+			c.Abort()
+			return
+		}
+
+		// Serve the actual static file with COOP/COEP headers
+		c.Header("Cross-Origin-Embedder-Policy", "credentialless")
+		c.Header("Cross-Origin-Opener-Policy", "same-origin")
+		fileServer.ServeHTTP(c.Writer, c.Request)
+		c.Abort()
+	}
 }

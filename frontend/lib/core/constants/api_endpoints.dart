@@ -1,11 +1,11 @@
 class ApiEndpoints {
   ApiEndpoints._();
 
-  // Base URL — injected at build time via --dart-define=API_BASE_URL=...
-  // Falls back to localhost for local development
+  // Base URL — when served from the same Go server, use relative path.
+  // Override via --dart-define=API_BASE_URL=... for separate deployments.
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://localhost:8080/api/v1',
+    defaultValue: '/api/v1',
   );
 
   // Auth
