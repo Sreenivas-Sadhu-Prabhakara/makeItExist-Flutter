@@ -156,6 +156,32 @@ func (s *authService) GetProfile(ctx context.Context, userID uuid.UUID) (*domain
 	return user, nil
 }
 
+func (s *authService) AdminResetPassword(ctx context.Context, targetUserID uuid.UUID, newPassword string) error {
+	user, err := s.userRepo.FindByID(ctx, targetUserID)
+	if err != nil {
+		return fmt.Errorf("failed to find user: %w", err)
+	}
+	if user == nil {
+		return errors.New("user not found")
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	if err := s.userRepo.UpdatePassword(ctx, targetUserID, string(hash)); err != nil {
+		return fmt.Errorf("failed to update password: %w", err)
+	}
+
+	log.Info().Str("target_user", user.Email).Msg("Admin reset password")
+	return nil
+}
+
+func (s *authService) ListUsers(ctx context.Context, limit, offset int) ([]domain.User, int, error) {
+	return s.userRepo.List(ctx, limit, offset)
+}
+
 // JWT Claims
 type Claims struct {
 	UserID string      `json:"user_id"`

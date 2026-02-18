@@ -28,4 +28,6 @@ class ApiEndpoints {
   static const String adminRequests = '/admin/requests';
   static String adminRequestById(String id) => '/admin/requests/$id';
   static const String adminScheduleGenerate = '/admin/schedule/generate';
+  static const String adminUsers = '/admin/users';
+  static String adminResetPassword(String id) => '/admin/users/$id/reset-password';
 }

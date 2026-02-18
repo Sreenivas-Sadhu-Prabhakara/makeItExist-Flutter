@@ -6,6 +6,7 @@ import '../presentation/screens/splash_screen.dart';
 import '../presentation/screens/auth/login_screen.dart';
 import '../presentation/screens/auth/register_screen.dart';
 import '../presentation/screens/auth/verify_otp_screen.dart';
+import '../presentation/screens/admin/admin_users_screen.dart';
 import '../presentation/screens/home/home_screen.dart';
 import '../presentation/screens/request/new_request_screen.dart';
 import '../presentation/screens/request/my_requests_screen.dart';
@@ -72,6 +73,10 @@ class AppRouter {
       GoRoute(
         path: '/schedule',
         builder: (context, state) => const ScheduleScreen(),
+      ),
+      GoRoute(
+        path: '/admin/users',
+        builder: (context, state) => const AdminUsersScreen(),
       ),
     ],
   );

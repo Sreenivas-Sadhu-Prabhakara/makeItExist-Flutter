@@ -88,6 +88,8 @@ func Setup(
 		admin.GET("/requests", requestHandler.ListAll)
 		admin.PUT("/requests/:id", requestHandler.Update)
 		admin.POST("/schedule/generate", scheduleHandler.GenerateSlots)
+		admin.GET("/users", adminHandler.ListUsers)
+		admin.PUT("/users/:id/reset-password", adminHandler.ResetPassword)
 	}
 
 	// ── Serve Flutter Web Frontend (SPA) ─────────────────────────

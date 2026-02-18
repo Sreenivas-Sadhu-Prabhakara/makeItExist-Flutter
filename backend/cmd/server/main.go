@@ -69,7 +69,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 	requestHandler := handler.NewRequestHandler(requestService)
 	scheduleHandler := handler.NewScheduleHandler(scheduleService)
-	adminHandler := handler.NewAdminHandler(requestService, scheduleService)
+	adminHandler := handler.NewAdminHandler(requestService, scheduleService, authService)
 
 	// Setup router
 	r := router.Setup(cfg, authHandler, requestHandler, scheduleHandler, adminHandler)

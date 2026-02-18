@@ -64,6 +64,7 @@ type UserRepository interface {
 	FindByEmail(ctx context.Context, email string) (*User, error)
 	FindByID(ctx context.Context, id uuid.UUID) (*User, error)
 	Update(ctx context.Context, user *User) error
+	UpdatePassword(ctx context.Context, userID uuid.UUID, passwordHash string) error
 	SetOTP(ctx context.Context, email, otp string, expiresAt time.Time) error
 	VerifyOTP(ctx context.Context, email, otp string) error
 	List(ctx context.Context, limit, offset int) ([]User, int, error)
@@ -76,4 +77,6 @@ type UserService interface {
 	VerifyOTP(ctx context.Context, req *VerifyOTPRequest) error
 	ResendOTP(ctx context.Context, email string) error
 	GetProfile(ctx context.Context, userID uuid.UUID) (*User, error)
+	AdminResetPassword(ctx context.Context, targetUserID uuid.UUID, newPassword string) error
+	ListUsers(ctx context.Context, limit, offset int) ([]User, int, error)
 }

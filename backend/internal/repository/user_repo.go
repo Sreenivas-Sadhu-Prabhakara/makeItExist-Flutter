@@ -95,6 +95,12 @@ func (r *userRepo) Update(ctx context.Context, user *domain.User) error {
 	return err
 }
 
+func (r *userRepo) UpdatePassword(ctx context.Context, userID uuid.UUID, passwordHash string) error {
+	query := `UPDATE users SET password_hash=$1, updated_at=$2 WHERE id=$3`
+	_, err := r.db.Exec(ctx, query, passwordHash, time.Now(), userID)
+	return err
+}
+
 func (r *userRepo) SetOTP(ctx context.Context, email, otp string, expiresAt time.Time) error {
 	query := `UPDATE users SET otp=$1, otp_expires_at=$2, updated_at=$3 WHERE email=$4`
 	_, err := r.db.Exec(ctx, query, otp, expiresAt, time.Now(), email)

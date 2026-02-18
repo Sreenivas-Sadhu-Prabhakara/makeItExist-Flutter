@@ -125,6 +125,18 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (user != null && user.isAdmin) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: _ActionCard(
+                      icon: Icons.admin_panel_settings,
+                      label: '🔑 Manage Users & Reset Passwords',
+                      color: Colors.red,
+                      onTap: () => context.go('/admin/users'),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 32),
 
                 // Pricing Info
