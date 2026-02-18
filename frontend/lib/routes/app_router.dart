@@ -5,6 +5,7 @@ import '../presentation/blocs/auth/auth_state.dart';
 import '../presentation/screens/splash_screen.dart';
 import '../presentation/screens/auth/login_screen.dart';
 import '../presentation/screens/auth/register_screen.dart';
+import '../presentation/screens/auth/verify_otp_screen.dart';
 import '../presentation/screens/home/home_screen.dart';
 import '../presentation/screens/request/new_request_screen.dart';
 import '../presentation/screens/request/my_requests_screen.dart';
@@ -19,6 +20,7 @@ class AppRouter {
       final authState = context.read<AuthBloc>().state;
       final isAuthRoute = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register' ||
+          state.matchedLocation == '/verify-otp' ||
           state.matchedLocation == '/';
 
       if (authState is AuthUnauthenticated && !isAuthRoute) {
@@ -41,6 +43,13 @@ class AppRouter {
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: '/verify-otp',
+        builder: (context, state) {
+          final email = state.uri.queryParameters['email'] ?? '';
+          return VerifyOtpScreen(email: email);
+        },
       ),
       GoRoute(
         path: '/home',

@@ -3,7 +3,6 @@ class UserModel {
   final String email;
   final String fullName;
   final String studentId;
-  final String? phone;
   final String role;
   final bool isVerified;
   final DateTime createdAt;
@@ -13,7 +12,6 @@ class UserModel {
     required this.email,
     required this.fullName,
     required this.studentId,
-    this.phone,
     required this.role,
     required this.isVerified,
     required this.createdAt,
@@ -25,7 +23,6 @@ class UserModel {
       email: json['email'] ?? '',
       fullName: json['full_name'] ?? '',
       studentId: json['student_id'] ?? '',
-      phone: json['phone'],
       role: json['role'] ?? 'student',
       isVerified: json['is_verified'] ?? false,
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
@@ -38,7 +35,6 @@ class UserModel {
       'email': email,
       'full_name': fullName,
       'student_id': studentId,
-      'phone': phone,
       'role': role,
       'is_verified': isVerified,
     };

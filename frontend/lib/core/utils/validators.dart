@@ -49,15 +49,6 @@ class Validators {
     return null;
   }
 
-  static String? phone(String? value) {
-    if (value == null || value.isEmpty) return null; // Optional
-    final phoneRegex = RegExp(r'^\+?[\d\s-]{10,15}$');
-    if (!phoneRegex.hasMatch(value)) {
-      return 'Enter a valid phone number';
-    }
-    return null;
-  }
-
   static String? otp(String? value) {
     if (value == null || value.isEmpty) {
       return 'OTP is required';

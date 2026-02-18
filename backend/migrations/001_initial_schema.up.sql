@@ -14,7 +14,6 @@ CREATE TABLE users (
     password_hash   VARCHAR(255) NOT NULL,
     full_name       VARCHAR(255) NOT NULL,
     student_id      VARCHAR(100) NOT NULL,
-    phone           VARCHAR(20),
     role            VARCHAR(20) NOT NULL DEFAULT 'student' 
                     CHECK (role IN ('student', 'builder', 'admin')),
     is_verified     BOOLEAN NOT NULL DEFAULT FALSE,

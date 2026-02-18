@@ -22,12 +22,12 @@ func NewUserRepository(db *pgxpool.Pool) domain.UserRepository {
 
 func (r *userRepo) Create(ctx context.Context, user *domain.User) error {
 	query := `
-		INSERT INTO users (id, email, password_hash, full_name, student_id, phone, role, is_verified, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		INSERT INTO users (id, email, password_hash, full_name, student_id, role, is_verified, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 	`
 	_, err := r.db.Exec(ctx, query,
 		user.ID, user.Email, user.PasswordHash, user.FullName,
-		user.StudentID, user.Phone, user.Role, user.IsVerified,
+		user.StudentID, user.Role, user.IsVerified,
 		user.CreatedAt, user.UpdatedAt,
 	)
 	return err
@@ -35,17 +35,16 @@ func (r *userRepo) Create(ctx context.Context, user *domain.User) error {
 
 func (r *userRepo) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
 	query := `
-		SELECT id, email, password_hash, full_name, student_id, phone, role, 
+		SELECT id, email, password_hash, full_name, student_id, role, 
 		       is_verified, otp, otp_expires_at, created_at, updated_at
 		FROM users WHERE email = $1
 	`
 	user := &domain.User{}
-	var phone *string
 	var otp *string
 	var otpExpires *time.Time
 	err := r.db.QueryRow(ctx, query, email).Scan(
 		&user.ID, &user.Email, &user.PasswordHash, &user.FullName,
-		&user.StudentID, &phone, &user.Role, &user.IsVerified,
+		&user.StudentID, &user.Role, &user.IsVerified,
 		&otp, &otpExpires, &user.CreatedAt, &user.UpdatedAt,
 	)
 	if err != nil {
@@ -53,9 +52,6 @@ func (r *userRepo) FindByEmail(ctx context.Context, email string) (*domain.User,
 			return nil, nil
 		}
 		return nil, err
-	}
-	if phone != nil {
-		user.Phone = *phone
 	}
 	if otp != nil {
 		user.OTP = *otp
@@ -68,15 +64,14 @@ func (r *userRepo) FindByEmail(ctx context.Context, email string) (*domain.User,
 
 func (r *userRepo) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	query := `
-		SELECT id, email, password_hash, full_name, student_id, phone, role, 
+		SELECT id, email, password_hash, full_name, student_id, role, 
 		       is_verified, created_at, updated_at
 		FROM users WHERE id = $1
 	`
 	user := &domain.User{}
-	var phone *string
 	err := r.db.QueryRow(ctx, query, id).Scan(
 		&user.ID, &user.Email, &user.PasswordHash, &user.FullName,
-		&user.StudentID, &phone, &user.Role, &user.IsVerified,
+		&user.StudentID, &user.Role, &user.IsVerified,
 		&user.CreatedAt, &user.UpdatedAt,
 	)
 	if err != nil {
@@ -85,19 +80,16 @@ func (r *userRepo) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, er
 		}
 		return nil, err
 	}
-	if phone != nil {
-		user.Phone = *phone
-	}
 	return user, nil
 }
 
 func (r *userRepo) Update(ctx context.Context, user *domain.User) error {
 	query := `
-		UPDATE users SET full_name=$1, phone=$2, role=$3, is_verified=$4, updated_at=$5
-		WHERE id=$6
+		UPDATE users SET full_name=$1, role=$2, is_verified=$3, updated_at=$4
+		WHERE id=$5
 	`
 	_, err := r.db.Exec(ctx, query,
-		user.FullName, user.Phone, user.Role, user.IsVerified,
+		user.FullName, user.Role, user.IsVerified,
 		time.Now(), user.ID,
 	)
 	return err
@@ -132,7 +124,7 @@ func (r *userRepo) List(ctx context.Context, limit, offset int) ([]domain.User, 
 	}
 
 	query := `
-		SELECT id, email, full_name, student_id, phone, role, is_verified, created_at, updated_at
+		SELECT id, email, full_name, student_id, role, is_verified, created_at, updated_at
 		FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2
 	`
 	rows, err := r.db.Query(ctx, query, limit, offset)
@@ -146,7 +138,7 @@ func (r *userRepo) List(ctx context.Context, limit, offset int) ([]domain.User, 
 		var u domain.User
 		if err := rows.Scan(
 			&u.ID, &u.Email, &u.FullName, &u.StudentID,
-			&u.Phone, &u.Role, &u.IsVerified, &u.CreatedAt, &u.UpdatedAt,
+			&u.Role, &u.IsVerified, &u.CreatedAt, &u.UpdatedAt,
 		); err != nil {
 			return nil, 0, err
 		}

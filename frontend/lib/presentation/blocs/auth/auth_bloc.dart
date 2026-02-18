@@ -54,7 +54,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         password: event.password,
         fullName: event.fullName,
         studentId: event.studentId,
-        phone: event.phone,
       );
       emit(AuthNeedsVerification(email: event.email, user: response.user));
     } on ApiException catch (e) {

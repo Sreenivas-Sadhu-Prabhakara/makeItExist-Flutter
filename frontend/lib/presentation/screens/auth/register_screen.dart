@@ -20,7 +20,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
   final _studentIdController = TextEditingController();
-  final _phoneController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
@@ -29,7 +28,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _passwordController.dispose();
     _nameController.dispose();
     _studentIdController.dispose();
-    _phoneController.dispose();
     super.dispose();
   }
 
@@ -44,7 +42,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               backgroundColor: AppTheme.successColor,
             ),
           );
-          context.go('/login');
+          context.go('/verify-otp?email=${Uri.encodeComponent(state.email)}');
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -118,16 +116,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
-                        controller: _phoneController,
-                        keyboardType: TextInputType.phone,
-                        validator: Validators.phone,
-                        decoration: const InputDecoration(
-                          labelText: 'Phone (Optional)',
-                          prefixIcon: Icon(Icons.phone_outlined),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         validator: Validators.password,
@@ -164,9 +152,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                 password: _passwordController.text,
                                                 fullName: _nameController.text.trim(),
                                                 studentId: _studentIdController.text.trim(),
-                                                phone: _phoneController.text.trim().isEmpty
-                                                    ? null
-                                                    : _phoneController.text.trim(),
                                               ),
                                             );
                                       }

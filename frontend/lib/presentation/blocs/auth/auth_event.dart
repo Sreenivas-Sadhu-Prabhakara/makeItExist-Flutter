@@ -14,14 +14,12 @@ class AuthRegister extends AuthEvent {
   final String password;
   final String fullName;
   final String studentId;
-  final String? phone;
 
   AuthRegister({
     required this.email,
     required this.password,
     required this.fullName,
     required this.studentId,
-    this.phone,
   });
 }
 

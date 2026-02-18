@@ -23,7 +23,6 @@ type User struct {
 	PasswordHash  string    `json:"-"`
 	FullName      string    `json:"full_name"`
 	StudentID     string    `json:"student_id"`
-	Phone         string    `json:"phone,omitempty"`
 	Role          Role      `json:"role"`
 	IsVerified    bool      `json:"is_verified"`
 	OTP           string    `json:"-"`
@@ -38,7 +37,6 @@ type RegisterRequest struct {
 	Password  string `json:"password" binding:"required,min=8"`
 	FullName  string `json:"full_name" binding:"required"`
 	StudentID string `json:"student_id" binding:"required"`
-	Phone     string `json:"phone"`
 }
 
 // LoginRequest is the input for user login
@@ -76,5 +74,6 @@ type UserService interface {
 	Register(ctx context.Context, req *RegisterRequest) (*AuthResponse, error)
 	Login(ctx context.Context, req *LoginRequest) (*AuthResponse, error)
 	VerifyOTP(ctx context.Context, req *VerifyOTPRequest) error
+	ResendOTP(ctx context.Context, email string) error
 	GetProfile(ctx context.Context, userID uuid.UUID) (*User, error)
 }

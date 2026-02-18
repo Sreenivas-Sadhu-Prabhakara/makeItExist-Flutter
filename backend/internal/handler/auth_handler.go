@@ -104,6 +104,33 @@ func (h *AuthHandler) VerifyOTP(c *gin.Context) {
 	})
 }
 
+// ResendOTP sends a new OTP to the user's email
+// POST /api/v1/auth/resend-otp
+func (h *AuthHandler) ResendOTP(c *gin.Context) {
+	var req struct {
+		Email string `json:"email" binding:"required,email"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "validation_error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if err := h.authService.ResendOTP(c.Request.Context(), req.Email); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "resend_failed",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Verification code sent to your email",
+	})
+}
+
 // GetProfile returns the authenticated user's profile
 // GET /api/v1/auth/profile
 func (h *AuthHandler) GetProfile(c *gin.Context) {

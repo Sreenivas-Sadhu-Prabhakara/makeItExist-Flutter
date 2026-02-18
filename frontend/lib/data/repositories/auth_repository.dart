@@ -14,7 +14,6 @@ class AuthRepository {
     required String password,
     required String fullName,
     required String studentId,
-    String? phone,
   }) async {
     try {
       final response = await apiClient.post(
@@ -24,7 +23,6 @@ class AuthRepository {
           'password': password,
           'full_name': fullName,
           'student_id': studentId,
-          if (phone != null) 'phone': phone,
         },
       );
 
@@ -68,6 +66,17 @@ class AuthRepository {
           'email': email,
           'otp': otp,
         },
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  Future<void> resendOtp({required String email}) async {
+    try {
+      await apiClient.post(
+        ApiEndpoints.resendOtp,
+        data: {'email': email},
       );
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
