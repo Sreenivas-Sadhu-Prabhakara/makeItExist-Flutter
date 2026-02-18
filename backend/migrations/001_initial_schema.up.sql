@@ -129,12 +129,12 @@ CREATE INDEX idx_schedule_entries_builder ON schedule_entries(builder_id);
 -- ============================================
 -- SEED: Default Admin User
 -- ============================================
--- Password: changeme (bcrypt hash)
+-- Password: password (bcrypt hash)
 INSERT INTO users (id, email, password_hash, full_name, student_id, role, is_verified)
 VALUES (
     uuid_generate_v4(),
     'admin@aim.edu',
-    '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- "changeme"
+    '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- "password"
     'Admin',
     'ADMIN001',
     'admin',

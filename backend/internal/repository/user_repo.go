@@ -40,11 +40,12 @@ func (r *userRepo) FindByEmail(ctx context.Context, email string) (*domain.User,
 		FROM users WHERE email = $1
 	`
 	user := &domain.User{}
+	var phone *string
 	var otp *string
 	var otpExpires *time.Time
 	err := r.db.QueryRow(ctx, query, email).Scan(
 		&user.ID, &user.Email, &user.PasswordHash, &user.FullName,
-		&user.StudentID, &user.Phone, &user.Role, &user.IsVerified,
+		&user.StudentID, &phone, &user.Role, &user.IsVerified,
 		&otp, &otpExpires, &user.CreatedAt, &user.UpdatedAt,
 	)
 	if err != nil {
@@ -52,6 +53,9 @@ func (r *userRepo) FindByEmail(ctx context.Context, email string) (*domain.User,
 			return nil, nil
 		}
 		return nil, err
+	}
+	if phone != nil {
+		user.Phone = *phone
 	}
 	if otp != nil {
 		user.OTP = *otp
@@ -69,9 +73,10 @@ func (r *userRepo) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, er
 		FROM users WHERE id = $1
 	`
 	user := &domain.User{}
+	var phone *string
 	err := r.db.QueryRow(ctx, query, id).Scan(
 		&user.ID, &user.Email, &user.PasswordHash, &user.FullName,
-		&user.StudentID, &user.Phone, &user.Role, &user.IsVerified,
+		&user.StudentID, &phone, &user.Role, &user.IsVerified,
 		&user.CreatedAt, &user.UpdatedAt,
 	)
 	if err != nil {
@@ -79,6 +84,9 @@ func (r *userRepo) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, er
 			return nil, nil
 		}
 		return nil, err
+	}
+	if phone != nil {
+		user.Phone = *phone
 	}
 	return user, nil
 }

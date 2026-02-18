@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/makeitexist/backend/internal/domain"
 )
 
@@ -106,13 +107,22 @@ func (h *AuthHandler) VerifyOTP(c *gin.Context) {
 // GetProfile returns the authenticated user's profile
 // GET /api/v1/auth/profile
 func (h *AuthHandler) GetProfile(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userIDStr, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
-	user, err := h.authService.GetProfile(c.Request.Context(), userID.(domain.User).ID)
+	parsedID, err := uuid.Parse(userIDStr.(string))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "invalid_user_id",
+			"message": "Invalid user ID format",
+		})
+		return
+	}
+
+	user, err := h.authService.GetProfile(c.Request.Context(), parsedID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "not_found",
