@@ -1,0 +1,26 @@
+class ApiEndpoints {
+  ApiEndpoints._();
+
+  // Base URL - change for production
+  static const String baseUrl = 'http://localhost:8080/api/v1';
+
+  // Auth
+  static const String register = '/auth/register';
+  static const String login = '/auth/login';
+  static const String verifyOtp = '/auth/verify-otp';
+  static const String profile = '/auth/profile';
+
+  // Requests
+  static const String requests = '/requests';
+  static String requestById(String id) => '/requests/$id';
+
+  // Schedule
+  static const String schedule = '/schedule';
+  static const String scheduleSlots = '/schedule/slots';
+
+  // Admin
+  static const String adminDashboard = '/admin/dashboard';
+  static const String adminRequests = '/admin/requests';
+  static String adminRequestById(String id) => '/admin/requests/$id';
+  static const String adminScheduleGenerate = '/admin/schedule/generate';
+}

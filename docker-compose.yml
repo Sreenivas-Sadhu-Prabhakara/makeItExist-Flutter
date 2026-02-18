@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # PostgreSQL Database
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: mie-postgres
+    environment:
+      POSTGRES_DB: makeitexist
+      POSTGRES_USER: makeitexist
+      POSTGRES_PASSWORD: changeme_in_production
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations/001_initial_schema.up.sql:/docker-entrypoint-initdb.d/001_init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U makeitexist"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mie-network
+
+  # ============================================
+  # Go API Backend
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mie-backend
+    environment:
+      SERVER_PORT: "8080"
+      SERVER_ENV: "production"
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: makeitexist
+      DB_PASSWORD: changeme_in_production
+      DB_NAME: makeitexist
+      DB_SSLMODE: disable
+      JWT_SECRET: your-super-secret-key-change-this
+      AIM_EMAIL_DOMAIN: aim.edu
+      CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:8080,http://localhost:5000"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - mie-network
+
+volumes:
+  postgres_data:
+
+networks:
+  mie-network:
+    driver: bridge
