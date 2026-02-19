@@ -124,8 +124,12 @@ func Load() *Config {
 	}
 }
 
-// DSN returns the PostgreSQL connection string
+// DSN returns the PostgreSQL connection string.
+// If DATABASE_URL is set (e.g. on Render.com), it takes priority.
 func (d *DatabaseConfig) DSN() string {
+	if url, ok := os.LookupEnv("DATABASE_URL"); ok && url != "" {
+		return url
+	}
 	return "host=" + d.Host +
 		" port=" + d.Port +
 		" user=" + d.User +

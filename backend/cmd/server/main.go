@@ -55,6 +55,9 @@ func main() {
 	}
 	log.Info().Msg("✅ Connected to PostgreSQL")
 
+	// Auto-run migrations
+	runMigrations(ctx, db)
+
 	// Initialize repositories
 	userRepo := repository.NewUserRepository(db)
 	requestRepo := repository.NewBuildRequestRepository(db)
@@ -114,4 +117,42 @@ func main() {
 	}
 
 	log.Info().Msg("👋 Server stopped gracefully")
+}
+
+// runMigrations executes the SQL migration file if the users table doesn't exist yet.
+func runMigrations(ctx context.Context, db *pgxpool.Pool) {
+	// Check if migrations already applied (users table exists)
+	var exists bool
+	err := db.QueryRow(ctx,
+		`SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'users')`).Scan(&exists)
+	if err != nil {
+		log.Warn().Err(err).Msg("Could not check migration status")
+		return
+	}
+	if exists {
+		log.Info().Msg("📦 Database tables already exist, skipping migration")
+		return
+	}
+
+	// Try to read and execute migration file
+	migrationPaths := []string{
+		"migrations/001_initial_schema.up.sql",    // Docker / production
+		"../migrations/001_initial_schema.up.sql",  // local dev from cmd/server
+	}
+	var sqlBytes []byte
+	for _, p := range migrationPaths {
+		sqlBytes, err = os.ReadFile(p)
+		if err == nil {
+			break
+		}
+	}
+	if err != nil {
+		log.Warn().Msg("Migration file not found — tables must be created manually")
+		return
+	}
+
+	if _, err := db.Exec(ctx, string(sqlBytes)); err != nil {
+		log.Fatal().Err(err).Msg("Failed to run database migration")
+	}
+	log.Info().Msg("✅ Database migration applied successfully")
 }
