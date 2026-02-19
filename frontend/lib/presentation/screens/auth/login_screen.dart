@@ -87,7 +87,7 @@ class LoginScreen extends StatelessWidget {
                                   ),
                                 )
                               : Image.network(
-                                  'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                                  'https://developers.google.com/identity/images/g-logo.png',
                                   height: 24,
                                   width: 24,
                                   errorBuilder: (_, __, ___) =>

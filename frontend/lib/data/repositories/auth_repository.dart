@@ -9,8 +9,14 @@ import '../models/user_model.dart';
 class AuthRepository {
   final ApiClient apiClient;
 
+  // --dart-define=GOOGLE_AUTH_CLIENT_ID=xxx sets this at compile time.
+  // If empty, pass null so google_sign_in_web falls back to the
+  // <meta name="google-signin-client_id"> tag in web/index.html.
+  static const String _envClientId =
+      String.fromEnvironment('GOOGLE_AUTH_CLIENT_ID', defaultValue: '');
+
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: const String.fromEnvironment('GOOGLE_AUTH_CLIENT_ID', defaultValue: ''),
+    clientId: _envClientId.isNotEmpty ? _envClientId : null,
     scopes: ['email', 'profile'],
   );
 

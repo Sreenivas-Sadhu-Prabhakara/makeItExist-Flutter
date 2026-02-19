@@ -19,7 +19,17 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Make It Exist - Weekend Build Service for AIM Students">
-  <meta name="google-signin-client_id" content="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com">
+
+  <!--
+    Google Sign-In: Replace the placeholder below with your real
+    OAuth 2.0 Web Client ID from https://console.cloud.google.com/apis/credentials
+    This is the fallback when GOOGLE_AUTH_CLIENT_ID is NOT passed via \-\-dart-define.
+  -->
+  <meta name="google-signin-client_id"
+        content="">
+
+  <!-- Google Identity Services — required by google_sign_in_web -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">

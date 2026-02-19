@@ -91,7 +91,7 @@ func (s *authService) SSOLogin(ctx context.Context, req *domain.SSOLoginRequest)
 
 	// Validate audience (client ID) if configured
 	if s.cfg.Google.ClientID != "" && tokenInfo.Aud != s.cfg.Google.ClientID {
-		return nil, errors.New("token audience mismatch — check GOOGLE_CLIENT_ID configuration")
+		return nil, errors.New("token audience mismatch — check GOOGLE_AUTH_CLIENT_ID configuration")
 	}
 
 	// Validate email is verified by Google
