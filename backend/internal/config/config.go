@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -19,6 +20,7 @@ type Config struct {
 	AIM      AIMConfig
 	Rate     RateConfig
 	CORS     CORSConfig
+	Google   GoogleConfig
 }
 
 type ServerConfig struct {
@@ -71,6 +73,11 @@ type CORSConfig struct {
 	AllowedOrigins string
 }
 
+type GoogleConfig struct {
+	ClientID       string
+	AllowedDomains []string
+}
+
 // Load reads configuration from environment variables
 func Load() *Config {
 	// Load .env file if it exists (development)
@@ -120,6 +127,10 @@ func Load() *Config {
 		},
 		CORS: CORSConfig{
 			AllowedOrigins: getEnv("CORS_ALLOWED_ORIGINS", "http://localhost:3000"),
+		},
+		Google: GoogleConfig{
+			ClientID:       getEnv("GOOGLE_AUTH_CLIENT_ID", ""),
+			AllowedDomains: strings.Split(getEnv("GOOGLE_ALLOWED_DOMAINS", "gmail.com,aim.edu"), ","),
 		},
 	}
 }

@@ -31,24 +31,15 @@ type User struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
-// RegisterRequest is the input for user registration
-type RegisterRequest struct {
-	Email     string `json:"email" binding:"required,email"`
-	Password  string `json:"password" binding:"required,min=8"`
-	FullName  string `json:"full_name" binding:"required"`
-	StudentID string `json:"student_id" binding:"required"`
+// SSOLoginRequest is the input for Google SSO login
+type SSOLoginRequest struct {
+	IDToken string `json:"id_token" binding:"required"`
 }
 
-// LoginRequest is the input for user login
+// LoginRequest is the input for admin password login (fallback)
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
-}
-
-// VerifyOTPRequest is the input for OTP verification
-type VerifyOTPRequest struct {
-	Email string `json:"email" binding:"required,email"`
-	OTP   string `json:"otp" binding:"required,len=6"`
 }
 
 // AuthResponse is the output after successful auth
@@ -72,10 +63,8 @@ type UserRepository interface {
 
 // UserService defines the interface for user business logic
 type UserService interface {
-	Register(ctx context.Context, req *RegisterRequest) (*AuthResponse, error)
+	SSOLogin(ctx context.Context, req *SSOLoginRequest) (*AuthResponse, error)
 	Login(ctx context.Context, req *LoginRequest) (*AuthResponse, error)
-	VerifyOTP(ctx context.Context, req *VerifyOTPRequest) error
-	ResendOTP(ctx context.Context, email string) error
 	GetProfile(ctx context.Context, userID uuid.UUID) (*User, error)
 	AdminResetPassword(ctx context.Context, targetUserID uuid.UUID, newPassword string) error
 	ListUsers(ctx context.Context, limit, offset int) ([]User, int, error)

@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../core/network/api_exceptions.dart';
-import '../../../data/models/user_model.dart';
 import '../../../data/repositories/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -10,9 +10,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   AuthBloc({required this.authRepository}) : super(AuthInitial()) {
     on<AuthCheckStatus>(_onCheckStatus);
-    on<AuthLogin>(_onLogin);
-    on<AuthRegister>(_onRegister);
-    on<AuthVerifyOtp>(_onVerifyOtp);
+    on<AuthGoogleSignIn>(_onGoogleSignIn);
     on<AuthLogout>(_onLogout);
   }
 
@@ -31,48 +29,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Future<void> _onLogin(AuthLogin event, Emitter<AuthState> emit) async {
+  Future<void> _onGoogleSignIn(AuthGoogleSignIn event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final response = await authRepository.login(
-        email: event.email,
-        password: event.password,
-      );
+      final response = await authRepository.signInWithGoogle();
       emit(AuthAuthenticated(user: response.user));
     } on ApiException catch (e) {
       emit(AuthError(message: e.message));
     } catch (e) {
-      emit(AuthError(message: 'Login failed. Please try again.'));
-    }
-  }
-
-  Future<void> _onRegister(AuthRegister event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
-    try {
-      final response = await authRepository.register(
-        email: event.email,
-        password: event.password,
-        fullName: event.fullName,
-        studentId: event.studentId,
-      );
-      emit(AuthNeedsVerification(email: event.email, user: response.user));
-    } on ApiException catch (e) {
-      emit(AuthError(message: e.message));
-    } catch (e) {
-      emit(AuthError(message: 'Registration failed. Please try again.'));
-    }
-  }
-
-  Future<void> _onVerifyOtp(AuthVerifyOtp event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
-    try {
-      await authRepository.verifyOtp(email: event.email, otp: event.otp);
-      final user = await authRepository.getProfile();
-      emit(AuthAuthenticated(user: user));
-    } on ApiException catch (e) {
-      emit(AuthError(message: e.message));
-    } catch (e) {
-      emit(AuthError(message: 'Verification failed. Please try again.'));
+      emit(AuthError(message: 'Sign-in failed. Please try again.'));
     }
   }
 

@@ -13,12 +13,6 @@ class AuthAuthenticated extends AuthState {
 
 class AuthUnauthenticated extends AuthState {}
 
-class AuthNeedsVerification extends AuthState {
-  final String email;
-  final UserModel user;
-  AuthNeedsVerification({required this.email, required this.user});
-}
-
 class AuthError extends AuthState {
   final String message;
   AuthError({required this.message});

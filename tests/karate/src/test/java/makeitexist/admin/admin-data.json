@@ -1,0 +1,14 @@
+[
+  {
+    "scenario": "Reset password for student",
+    "new_password": "NewSecure@123"
+  },
+  {
+    "scenario": "Reset password — short password",
+    "new_password": "abc"
+  },
+  {
+    "scenario": "Reset password — long password",
+    "new_password": "AVeryL0ngP@ssw0rdThatExceeds_Normal_Limits_12345!"
+  }
+]

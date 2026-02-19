@@ -3,11 +3,13 @@
 # ============================================
 FROM ghcr.io/cirruslabs/flutter:3.41.1 AS flutter-builder
 
+ARG GOOGLE_AUTH_CLIENT_ID=""
+
 WORKDIR /app/frontend
 COPY frontend/ .
 
 RUN flutter pub get
-RUN flutter build web --release --no-web-resources-cdn
+RUN flutter build web --release --no-web-resources-cdn --dart-define=GOOGLE_AUTH_CLIENT_ID=$GOOGLE_AUTH_CLIENT_ID
 
 # ============================================
 # Stage 2: Build Go Binary

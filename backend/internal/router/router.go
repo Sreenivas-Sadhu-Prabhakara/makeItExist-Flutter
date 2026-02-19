@@ -49,10 +49,8 @@ func Setup(
 	// === Public Routes (No Auth) ===
 	auth := v1.Group("/auth")
 	{
-		auth.POST("/register", authHandler.Register)
-		auth.POST("/login", authHandler.Login)
-		auth.POST("/verify-otp", authHandler.VerifyOTP)
-		auth.POST("/resend-otp", authHandler.ResendOTP)
+		auth.POST("/google", authHandler.GoogleLogin)
+		auth.POST("/login", authHandler.Login) // admin password fallback
 	}
 
 	// === Protected Routes (Auth Required) ===
@@ -130,7 +128,7 @@ func serveSPA(webDir string) gin.HandlerFunc {
 		if err != nil || info.IsDir() {
 			// File not found or is a directory → serve index.html (SPA fallback)
 			c.Header("Cross-Origin-Embedder-Policy", "credentialless")
-			c.Header("Cross-Origin-Opener-Policy", "same-origin")
+			c.Header("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
 			c.File(path.Join(webDir, "index.html"))
 			c.Abort()
 			return
@@ -138,7 +136,7 @@ func serveSPA(webDir string) gin.HandlerFunc {
 
 		// Serve the actual static file with COOP/COEP headers
 		c.Header("Cross-Origin-Embedder-Policy", "credentialless")
-		c.Header("Cross-Origin-Opener-Policy", "same-origin")
+		c.Header("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
 		fileServer.ServeHTTP(c.Writer, c.Request)
 		c.Abort()
 	}

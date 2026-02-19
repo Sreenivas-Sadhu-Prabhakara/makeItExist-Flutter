@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 import '../../core/constants/api_endpoints.dart';
 import '../../core/network/api_client.dart';
 import '../../core/network/api_exceptions.dart';
@@ -7,23 +9,33 @@ import '../models/user_model.dart';
 class AuthRepository {
   final ApiClient apiClient;
 
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: const String.fromEnvironment('GOOGLE_AUTH_CLIENT_ID', defaultValue: ''),
+    scopes: ['email', 'profile'],
+  );
+
   AuthRepository({required this.apiClient});
 
-  Future<AuthResponse> register({
-    required String email,
-    required String password,
-    required String fullName,
-    required String studentId,
-  }) async {
+  /// Sign in with Google, then send the ID token to our backend.
+  Future<AuthResponse> signInWithGoogle() async {
+    // Trigger Google Sign-In flow
+    final account = await _googleSignIn.signIn();
+    if (account == null) {
+      throw ApiException(message: 'Google sign-in was cancelled');
+    }
+
+    // Get authentication tokens
+    final auth = await account.authentication;
+    final idToken = auth.idToken;
+    if (idToken == null || idToken.isEmpty) {
+      throw ApiException(message: 'Failed to get Google ID token');
+    }
+
+    // Send ID token to our backend
     try {
       final response = await apiClient.post(
-        ApiEndpoints.register,
-        data: {
-          'email': email,
-          'password': password,
-          'full_name': fullName,
-          'student_id': studentId,
-        },
+        ApiEndpoints.googleLogin,
+        data: {'id_token': idToken},
       );
 
       final authResponse = AuthResponse.fromJson(response.data['data']);
@@ -34,55 +46,16 @@ class AuthRepository {
     }
   }
 
-  Future<AuthResponse> login({
-    required String email,
-    required String password,
-  }) async {
+  /// Sign out of Google and clear local tokens.
+  Future<void> signOutGoogle() async {
     try {
-      final response = await apiClient.post(
-        ApiEndpoints.login,
-        data: {
-          'email': email,
-          'password': password,
-        },
-      );
-
-      final authResponse = AuthResponse.fromJson(response.data['data']);
-      await apiClient.saveTokens(authResponse.token, authResponse.refreshToken);
-      return authResponse;
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e);
+      await _googleSignIn.signOut();
+    } catch (_) {
+      // Ignore Google sign-out errors
     }
   }
 
-  Future<void> verifyOtp({
-    required String email,
-    required String otp,
-  }) async {
-    try {
-      await apiClient.post(
-        ApiEndpoints.verifyOtp,
-        data: {
-          'email': email,
-          'otp': otp,
-        },
-      );
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e);
-    }
-  }
-
-  Future<void> resendOtp({required String email}) async {
-    try {
-      await apiClient.post(
-        ApiEndpoints.resendOtp,
-        data: {'email': email},
-      );
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e);
-    }
-  }
-
+  /// Get current user profile from the backend.
   Future<UserModel> getProfile() async {
     try {
       final response = await apiClient.get(ApiEndpoints.profile);
@@ -92,10 +65,13 @@ class AuthRepository {
     }
   }
 
+  /// Log out: clear tokens and Google session.
   Future<void> logout() async {
+    await signOutGoogle();
     await apiClient.clearTokens();
   }
 
+  /// Check if user has a saved auth token.
   Future<bool> isLoggedIn() async {
     return apiClient.isAuthenticated();
   }

@@ -1,18 +1,16 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import '../presentation/blocs/auth/auth_bloc.dart';
 import '../presentation/blocs/auth/auth_state.dart';
-import '../presentation/screens/splash_screen.dart';
-import '../presentation/screens/auth/login_screen.dart';
-import '../presentation/screens/auth/register_screen.dart';
-import '../presentation/screens/auth/verify_otp_screen.dart';
 import '../presentation/screens/admin/admin_users_screen.dart';
+import '../presentation/screens/auth/login_screen.dart';
 import '../presentation/screens/home/home_screen.dart';
-import '../presentation/screens/request/new_request_screen.dart';
 import '../presentation/screens/request/my_requests_screen.dart';
+import '../presentation/screens/request/new_request_screen.dart';
 import '../presentation/screens/request/request_detail_screen.dart';
 import '../presentation/screens/schedule/schedule_screen.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import '../presentation/screens/splash_screen.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -20,8 +18,6 @@ class AppRouter {
     redirect: (context, state) {
       final authState = context.read<AuthBloc>().state;
       final isAuthRoute = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/register' ||
-          state.matchedLocation == '/verify-otp' ||
           state.matchedLocation == '/';
 
       if (authState is AuthUnauthenticated && !isAuthRoute) {
@@ -40,17 +36,6 @@ class AppRouter {
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: '/register',
-        builder: (context, state) => const RegisterScreen(),
-      ),
-      GoRoute(
-        path: '/verify-otp',
-        builder: (context, state) {
-          final email = state.uri.queryParameters['email'] ?? '';
-          return VerifyOtpScreen(email: email);
-        },
       ),
       GoRoute(
         path: '/home',

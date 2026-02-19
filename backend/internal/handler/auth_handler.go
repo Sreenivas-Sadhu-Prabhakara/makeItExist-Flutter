@@ -18,41 +18,35 @@ func NewAuthHandler(authService domain.UserService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
-// Register handles user registration
-// POST /api/v1/auth/register
-func (h *AuthHandler) Register(c *gin.Context) {
-	var req domain.RegisterRequest
+// GoogleLogin handles Google SSO login
+// POST /api/v1/auth/google
+func (h *AuthHandler) GoogleLogin(c *gin.Context) {
+	var req domain.SSOLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "validation_error",
-			"message": err.Error(),
+			"message": "id_token is required",
 		})
 		return
 	}
 
-	resp, err := h.authService.Register(c.Request.Context(), &req)
+	resp, err := h.authService.SSOLogin(c.Request.Context(), &req)
 	if err != nil {
-		status := http.StatusInternalServerError
-		if err.Error() == "user already registered with this email" {
-			status = http.StatusConflict
-		}
-		if err.Error() == "only AIM student emails are allowed (must end with @aim.edu)" {
-			status = http.StatusForbidden
-		}
+		status := http.StatusUnauthorized
 		c.JSON(status, gin.H{
-			"error":   "registration_failed",
+			"error":   "sso_login_failed",
 			"message": err.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "Registration successful. Please verify your email with the OTP sent.",
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login successful",
 		"data":    resp,
 	})
 }
 
-// Login handles user login
+// Login handles admin password-based login (fallback)
 // POST /api/v1/auth/login
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req domain.LoginRequest
@@ -76,58 +70,6 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successful",
 		"data":    resp,
-	})
-}
-
-// VerifyOTP handles OTP verification
-// POST /api/v1/auth/verify-otp
-func (h *AuthHandler) VerifyOTP(c *gin.Context) {
-	var req domain.VerifyOTPRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "validation_error",
-			"message": err.Error(),
-		})
-		return
-	}
-
-	if err := h.authService.VerifyOTP(c.Request.Context(), &req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "verification_failed",
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Email verified successfully",
-	})
-}
-
-// ResendOTP sends a new OTP to the user's email
-// POST /api/v1/auth/resend-otp
-func (h *AuthHandler) ResendOTP(c *gin.Context) {
-	var req struct {
-		Email string `json:"email" binding:"required,email"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "validation_error",
-			"message": err.Error(),
-		})
-		return
-	}
-
-	if err := h.authService.ResendOTP(c.Request.Context(), req.Email); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "resend_failed",
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Verification code sent to your email",
 	})
 }
 

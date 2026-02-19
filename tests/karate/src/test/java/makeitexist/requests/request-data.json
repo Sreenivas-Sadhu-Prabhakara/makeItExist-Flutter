@@ -1,0 +1,60 @@
+[
+  {
+    "title": "Portfolio Website",
+    "description": "A personal portfolio site to showcase projects and skills",
+    "request_type": "website",
+    "hosting_type": "vercel",
+    "tech_requirements": "React, Tailwind CSS",
+    "reference_links": "https://example.com/portfolio",
+    "figma_link": "",
+    "hosting_email": "student1@aim.edu",
+    "is_free_expected": true
+  },
+  {
+    "title": "Campus Events Mobile App",
+    "description": "An app for tracking and RSVPing to campus events",
+    "request_type": "mobile_app",
+    "hosting_type": "replit",
+    "tech_requirements": "Flutter, Firebase",
+    "reference_links": "https://example.com/events-app",
+    "figma_link": "https://figma.com/file/xyz",
+    "hosting_email": "student2@aim.edu",
+    "is_free_expected": false
+  },
+  {
+    "title": "Student Marketplace — Web + App",
+    "description": "A buy/sell platform for students with both web and mobile interfaces",
+    "request_type": "both",
+    "hosting_type": "heroku",
+    "tech_requirements": "Next.js, React Native, PostgreSQL",
+    "reference_links": "https://example.com/marketplace",
+    "figma_link": "https://figma.com/file/abc",
+    "hosting_email": "student3@aim.edu",
+    "is_free_expected": false
+  },
+  {
+    "title": "Whitelabel E-Commerce Store",
+    "description": "A branded store with custom domain and branding",
+    "request_type": "website",
+    "hosting_type": "whitelabel",
+    "tech_requirements": "Shopify Hydrogen, Stripe",
+    "reference_links": "",
+    "figma_link": "",
+    "hosting_email": "student4@aim.edu",
+    "whitelabel_domain": "mystore.com",
+    "whitelabel_branding": "Custom logo and color palette",
+    "whitelabel_hosting_platform": "AWS",
+    "is_free_expected": false
+  },
+  {
+    "title": "Simple Blog",
+    "description": "A minimal static blog",
+    "request_type": "website",
+    "hosting_type": "vercel",
+    "tech_requirements": "Hugo, Markdown",
+    "reference_links": "",
+    "figma_link": "",
+    "hosting_email": "student5@aim.edu",
+    "is_free_expected": true
+  }
+]
