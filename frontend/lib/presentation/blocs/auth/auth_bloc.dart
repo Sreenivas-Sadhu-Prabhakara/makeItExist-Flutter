@@ -11,6 +11,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({required this.authRepository}) : super(AuthInitial()) {
     on<AuthCheckStatus>(_onCheckStatus);
     on<AuthGoogleSignIn>(_onGoogleSignIn);
+    on<AuthEmailSignIn>(_onEmailSignIn);
     on<AuthLogout>(_onLogout);
   }
 
@@ -33,6 +34,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       final response = await authRepository.signInWithGoogle();
+      emit(AuthAuthenticated(user: response.user));
+    } on ApiException catch (e) {
+      emit(AuthError(message: e.message));
+    } catch (e) {
+      emit(AuthError(message: 'Sign-in failed. Please try again.'));
+    }
+  }
+
+  Future<void> _onEmailSignIn(AuthEmailSignIn event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    try {
+      final response = await authRepository.signInWithEmail(event.email, event.password);
       emit(AuthAuthenticated(user: response.user));
     } on ApiException catch (e) {
       emit(AuthError(message: e.message));

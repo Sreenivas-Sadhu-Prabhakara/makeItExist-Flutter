@@ -7,6 +7,21 @@ import '../../core/network/api_exceptions.dart';
 import '../models/user_model.dart';
 
 class AuthRepository {
+
+    /// Sign in with email and password (admin only)
+    Future<AuthResponse> signInWithEmail(String email, String password) async {
+      try {
+        final response = await apiClient.post(
+          ApiEndpoints.login,
+          data: {'email': email, 'password': password},
+        );
+        final authResponse = AuthResponse.fromJson(response.data['data']);
+        await apiClient.saveTokens(authResponse.token, authResponse.refreshToken);
+        return authResponse;
+      } on DioException catch (e) {
+        throw ApiException.fromDioError(e);
+      }
+    }
   final ApiClient apiClient;
 
   // --dart-define=GOOGLE_AUTH_CLIENT_ID=xxx sets this at compile time.
