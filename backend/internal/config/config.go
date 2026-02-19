@@ -128,8 +128,11 @@ func Load() *Config {
 // If DATABASE_URL is set (e.g. on Render.com), it takes priority.
 func (d *DatabaseConfig) DSN() string {
 	if url, ok := os.LookupEnv("DATABASE_URL"); ok && url != "" {
+		log.Info().Msg("Using DATABASE_URL from environment")
 		return url
 	}
+	log.Warn().Str("host", d.Host).Str("port", d.Port).Str("user", d.User).Str("dbname", d.Name).
+		Msg("DATABASE_URL not set, falling back to individual DB_* vars")
 	return "host=" + d.Host +
 		" port=" + d.Port +
 		" user=" + d.User +
