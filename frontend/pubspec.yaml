@@ -38,7 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   
   # Form
-  flutter_form_builder: ^9.3.0
+  flutter_form_builder: ^10.3.0
   form_builder_validators: any
 
 dev_dependencies:

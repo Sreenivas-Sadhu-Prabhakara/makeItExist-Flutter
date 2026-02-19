@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/request_model.dart';
 import '../../blocs/request/request_bloc.dart';
@@ -232,7 +233,7 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                         ),
                         const SizedBox(height: 12),
                         DropdownButtonFormField<String>(
-                          value: _whitelabelHosting.isEmpty ? null : _whitelabelHosting,
+                          initialValue: _whitelabelHosting.isEmpty ? null : _whitelabelHosting,
                           decoration: const InputDecoration(
                             labelText: 'Hosting Platform',
                           ),

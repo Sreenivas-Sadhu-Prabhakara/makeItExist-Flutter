@@ -25,11 +25,11 @@ services:
       - mie-network
 
   # ============================================
-  # Go API Backend
+  # Go API Backend + Flutter Web Frontend
   # ============================================
   backend:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
     container_name: mie-backend
     environment:
@@ -44,6 +44,7 @@ services:
       JWT_SECRET: your-super-secret-key-change-this
       AIM_EMAIL_DOMAIN: aim.edu
       CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:8080,http://localhost:5000"
+      FRONTEND_DIR: /app/static
     ports:
       - "8080:8080"
     depends_on:

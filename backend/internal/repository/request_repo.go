@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -92,17 +93,17 @@ func (r *requestRepo) List(ctx context.Context, filter domain.RequestFilter) ([]
 	argIdx := 1
 
 	if filter.UserID != nil {
-		baseQuery += ` AND user_id = $` + string(rune('0'+argIdx))
+		baseQuery += fmt.Sprintf(` AND user_id = $%d`, argIdx)
 		args = append(args, *filter.UserID)
 		argIdx++
 	}
 	if filter.Status != nil {
-		baseQuery += ` AND status = $` + string(rune('0'+argIdx))
+		baseQuery += fmt.Sprintf(` AND status = $%d`, argIdx)
 		args = append(args, *filter.Status)
 		argIdx++
 	}
 	if filter.RequestType != nil {
-		baseQuery += ` AND request_type = $` + string(rune('0'+argIdx))
+		baseQuery += fmt.Sprintf(` AND request_type = $%d`, argIdx)
 		args = append(args, *filter.RequestType)
 		argIdx++
 	}
@@ -115,10 +116,9 @@ func (r *requestRepo) List(ctx context.Context, filter domain.RequestFilter) ([]
 	}
 
 	// Data with pagination
-	dataQuery := `SELECT id, user_id, title, description, request_type, status, complexity,
-		hosting_type, estimated_cost, is_free, delivery_url, created_at, updated_at ` +
-		baseQuery + ` ORDER BY created_at DESC LIMIT $` + string(rune('0'+argIdx)) +
-		` OFFSET $` + string(rune('0'+argIdx+1))
+	dataQuery := fmt.Sprintf(`SELECT id, user_id, title, description, request_type, status, complexity,
+		hosting_type, estimated_cost, is_free, delivery_url, created_at, updated_at %s ORDER BY created_at DESC LIMIT $%d OFFSET $%d`,
+		baseQuery, argIdx, argIdx+1)
 	args = append(args, filter.Limit, filter.Offset)
 
 	rows, err := r.db.Query(ctx, dataQuery, args...)
