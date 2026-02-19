@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/network/api_exceptions.dart';
@@ -13,6 +14,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthGoogleSignIn>(_onGoogleSignIn);
     on<AuthEmailSignIn>(_onEmailSignIn);
     on<AuthLogout>(_onLogout);
+
+    if (kIsWeb) {
+      // Listen for Google user changes on web
+      authRepository.googleUserChanges.listen((account) async {
+        if (account != null) {
+          // User signed in via button, complete backend login
+          add(AuthGoogleSignIn());
+        }
+      });
+    }
   }
 
   Future<void> _onCheckStatus(AuthCheckStatus event, Emitter<AuthState> emit) async {

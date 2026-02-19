@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../core/constants/api_endpoints.dart';
@@ -39,33 +40,55 @@ class AuthRepository {
 
   /// Sign in with Google, then send the ID token to our backend.
   Future<AuthResponse> signInWithGoogle() async {
-    // Trigger Google Sign-In flow
-    final account = await _googleSignIn.signIn();
-    if (account == null) {
-      throw ApiException(message: 'Google sign-in was cancelled');
-    }
-
-    // Get authentication tokens
-    final auth = await account.authentication;
-    final idToken = auth.idToken;
-    if (idToken == null || idToken.isEmpty) {
-      throw ApiException(message: 'Failed to get Google ID token');
-    }
-
-    // Send ID token to our backend
-    try {
-      final response = await apiClient.post(
-        ApiEndpoints.googleLogin,
-        data: {'id_token': idToken},
-      );
-
-      final authResponse = AuthResponse.fromJson(response.data['data']);
-      await apiClient.saveTokens(authResponse.token, authResponse.refreshToken);
-      return authResponse;
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e);
+    if (kIsWeb) {
+      // On web, rely on the button and onCurrentUserChanged
+      final account = _googleSignIn.currentUser ?? await _googleSignIn.signInSilently();
+      if (account == null) {
+        throw ApiException(message: 'Google sign-in was not completed');
+      }
+      final auth = await account.authentication;
+      final idToken = auth.idToken;
+      if (idToken == null || idToken.isEmpty) {
+        throw ApiException(message: 'Failed to get Google ID token');
+      }
+      try {
+        final response = await apiClient.post(
+          ApiEndpoints.googleLogin,
+          data: {'id_token': idToken},
+        );
+        final authResponse = AuthResponse.fromJson(response.data['data']);
+        await apiClient.saveTokens(authResponse.token, authResponse.refreshToken);
+        return authResponse;
+      } on DioException catch (e) {
+        throw ApiException.fromDioError(e);
+      }
+    } else {
+      // On mobile/desktop, use the popup flow
+      final account = await _googleSignIn.signIn();
+      if (account == null) {
+        throw ApiException(message: 'Google sign-in was cancelled');
+      }
+      final auth = await account.authentication;
+      final idToken = auth.idToken;
+      if (idToken == null || idToken.isEmpty) {
+        throw ApiException(message: 'Failed to get Google ID token');
+      }
+      try {
+        final response = await apiClient.post(
+          ApiEndpoints.googleLogin,
+          data: {'id_token': idToken},
+        );
+        final authResponse = AuthResponse.fromJson(response.data['data']);
+        await apiClient.saveTokens(authResponse.token, authResponse.refreshToken);
+        return authResponse;
+      } on DioException catch (e) {
+        throw ApiException.fromDioError(e);
+      }
     }
   }
+
+  /// Stream for Google user changes (web only)
+  Stream<GoogleSignInAccount?> get googleUserChanges => _googleSignIn.onCurrentUserChanged;
 
   /// Sign out of Google and clear local tokens.
   Future<void> signOutGoogle() async {

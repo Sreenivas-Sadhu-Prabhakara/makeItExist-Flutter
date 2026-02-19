@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'app.dart';
 import 'core/network/api_client.dart';
+import 'core/utils/google_signin_button_web.dart';
 import 'data/repositories/admin_repository.dart';
 import 'data/repositories/auth_repository.dart';
 import 'data/repositories/request_repository.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  registerGoogleSignInButton();
   
   // Initialize API client
   final apiClient = ApiClient();
