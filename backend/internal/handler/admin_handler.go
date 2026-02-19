@@ -2,10 +2,13 @@ package handler
 
 import (
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/makeitexist/backend/internal/domain"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // AdminHandler handles admin dashboard endpoints
@@ -120,4 +123,49 @@ func (h *AdminHandler) ResetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Password reset successfully",
 	})
+}
+
+// CreateOrUpdateAdmin creates or updates the admin user
+// POST /api/v1/admin/create-admin
+func (h *AdminHandler) CreateOrUpdateAdmin(c *gin.Context) {
+	ctx := c.Request.Context()
+	// Get credentials from environment variables
+	email := os.Getenv("ADMIN_EMAIL")
+	if email == "" {
+		email = "admin"
+	}
+	password := os.Getenv("ADMIN_PASSWORD")
+	if password == "" {
+		password = "admin"
+	}
+	fullName := os.Getenv("ADMIN_FULLNAME")
+	if fullName == "" {
+		fullName = "Administrator"
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "hash_failed", "message": err.Error()})
+		return
+	}
+
+	user := &domain.User{
+		ID:           uuid.New(),
+		Email:        email,
+		PasswordHash: string(hash),
+		FullName:     fullName,
+		StudentID:    "",
+		Role:         domain.RoleAdmin,
+		IsVerified:   true,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+	}
+
+	err = h.authService.CreateOrUpdateAdmin(ctx, user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "admin_create_failed", "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Admin user created/updated successfully."})
 }

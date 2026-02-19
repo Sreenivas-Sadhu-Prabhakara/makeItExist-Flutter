@@ -18,17 +18,17 @@ const (
 
 // User represents an AIM student or admin
 type User struct {
-	ID            uuid.UUID `json:"id"`
-	Email         string    `json:"email"`
-	PasswordHash  string    `json:"-"`
-	FullName      string    `json:"full_name"`
-	StudentID     string    `json:"student_id"`
-	Role          Role      `json:"role"`
-	IsVerified    bool      `json:"is_verified"`
-	OTP           string    `json:"-"`
-	OTPExpiresAt  time.Time `json:"-"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	ID           uuid.UUID `json:"id"`
+	Email        string    `json:"email"`
+	PasswordHash string    `json:"-"`
+	FullName     string    `json:"full_name"`
+	StudentID    string    `json:"student_id"`
+	Role         Role      `json:"role"`
+	IsVerified   bool      `json:"is_verified"`
+	OTP          string    `json:"-"`
+	OTPExpiresAt time.Time `json:"-"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 // SSOLoginRequest is the input for Google SSO login
@@ -68,4 +68,5 @@ type UserService interface {
 	GetProfile(ctx context.Context, userID uuid.UUID) (*User, error)
 	AdminResetPassword(ctx context.Context, targetUserID uuid.UUID, newPassword string) error
 	ListUsers(ctx context.Context, limit, offset int) ([]User, int, error)
+	CreateOrUpdateAdmin(ctx context.Context, user *User) error
 }

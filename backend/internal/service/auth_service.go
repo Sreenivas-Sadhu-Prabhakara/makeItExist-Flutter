@@ -243,6 +243,22 @@ func (s *authService) ListUsers(ctx context.Context, limit, offset int) ([]domai
 	return s.userRepo.List(ctx, limit, offset)
 }
 
+func (s *authService) CreateOrUpdateAdmin(ctx context.Context, user *domain.User) error {
+	existing, err := s.userRepo.FindByEmail(ctx, user.Email)
+	if err != nil && err.Error() != "no rows in result set" {
+		return err
+	}
+	if existing != nil {
+		// Update password, role, is_verified, updated_at
+		existing.PasswordHash = user.PasswordHash
+		existing.Role = domain.RoleAdmin
+		existing.IsVerified = true
+		existing.UpdatedAt = user.UpdatedAt
+		return s.userRepo.Update(ctx, existing)
+	}
+	return s.userRepo.Create(ctx, user)
+}
+
 // ---------------------------------------------------------------------------
 // JWT helpers
 // ---------------------------------------------------------------------------
