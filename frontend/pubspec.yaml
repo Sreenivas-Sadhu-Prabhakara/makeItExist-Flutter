@@ -55,7 +55,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  
-  assets:
-    - assets/images/
-    - assets/icons/
+  # Remove or comment out missing asset directories to fix build errors
+  # assets:
+  #   - assets/images/
+  #   - assets/icons/
