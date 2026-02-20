@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../core/constants/api_endpoints.dart';
@@ -40,55 +39,65 @@ class AuthRepository {
 
   /// Sign in with Google, then send the ID token to our backend.
   Future<AuthResponse> signInWithGoogle() async {
-    if (kIsWeb) {
-      // On web, rely on the button and onCurrentUserChanged
-      final account = _googleSignIn.currentUser ?? await _googleSignIn.signInSilently();
-      if (account == null) {
-        throw ApiException(message: 'Google sign-in was not completed');
-      }
-      final auth = await account.authentication;
-      final idToken = auth.idToken;
-      if (idToken == null || idToken.isEmpty) {
-        throw ApiException(message: 'Failed to get Google ID token');
-      }
-      try {
-        final response = await apiClient.post(
-          ApiEndpoints.googleLogin,
-          data: {'id_token': idToken},
-        );
-        final authResponse = AuthResponse.fromJson(response.data['data']);
-        await apiClient.saveTokens(authResponse.token, authResponse.refreshToken);
-        return authResponse;
-      } on DioException catch (e) {
-        throw ApiException.fromDioError(e);
-      }
-    } else {
-      // On mobile/desktop, use the popup flow
+    print('🔐 [GoogleSignIn] Starting Google Sign-In flow...');
+    print('🔐 [GoogleSignIn] Client ID configured: $_envClientId');
+    
+    // Trigger Google Sign-In flow (works on both web and mobile)
+    try {
+      print('🔐 [GoogleSignIn] Calling _googleSignIn.signIn()...');
       final account = await _googleSignIn.signIn();
+      print('🔐 [GoogleSignIn] signIn() returned: $account');
+      
       if (account == null) {
+        print('❌ [GoogleSignIn] signIn() returned null - user cancelled');
         throw ApiException(message: 'Google sign-in was cancelled');
       }
+
+      print('✅ [GoogleSignIn] Account obtained: ${account.email}');
+      
+      // Get authentication tokens
+      print('🔐 [GoogleSignIn] Getting authentication tokens...');
       final auth = await account.authentication;
+      print('🔐 [GoogleSignIn] Authentication object: $auth');
+      
       final idToken = auth.idToken;
+      print('🔐 [GoogleSignIn] ID Token length: ${idToken?.length ?? 0}');
+      
       if (idToken == null || idToken.isEmpty) {
+        print('❌ [GoogleSignIn] Failed to get ID token');
         throw ApiException(message: 'Failed to get Google ID token');
       }
+
+      print('✅ [GoogleSignIn] ID Token obtained successfully');
+      
+      // Send ID token to our backend
+      print('🔐 [GoogleSignIn] Sending ID token to backend...');
+      print('🔐 [GoogleSignIn] Backend endpoint: ${ApiEndpoints.googleLogin}');
+      
       try {
         final response = await apiClient.post(
           ApiEndpoints.googleLogin,
           data: {'id_token': idToken},
         );
+        print('✅ [GoogleSignIn] Backend responded successfully');
+        print('🔐 [GoogleSignIn] Response data: ${response.data}');
+        
         final authResponse = AuthResponse.fromJson(response.data['data']);
         await apiClient.saveTokens(authResponse.token, authResponse.refreshToken);
+        print('✅ [GoogleSignIn] Tokens saved. User: ${authResponse.user.email}');
         return authResponse;
       } on DioException catch (e) {
+        print('❌ [GoogleSignIn] Backend request failed: ${e.message}');
+        print('❌ [GoogleSignIn] Status code: ${e.response?.statusCode}');
+        print('❌ [GoogleSignIn] Response: ${e.response?.data}');
         throw ApiException.fromDioError(e);
       }
+    } catch (e) {
+      print('❌ [GoogleSignIn] Unexpected error: $e');
+      print('❌ [GoogleSignIn] Error type: ${e.runtimeType}');
+      rethrow;
     }
   }
-
-  /// Stream for Google user changes (web only)
-  Stream<GoogleSignInAccount?> get googleUserChanges => _googleSignIn.onCurrentUserChanged;
 
   /// Sign out of Google and clear local tokens.
   Future<void> signOutGoogle() async {

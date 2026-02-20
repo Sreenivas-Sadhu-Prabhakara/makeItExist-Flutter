@@ -1,13 +1,5 @@
-import 'package:flutter/foundation.dart';
-import 'dart:ui' as ui;
-import 'package:google_sign_in_web/google_sign_in_web.dart';
-
+// No-op: Google sign-in button registration is not needed.
+// The standard google_sign_in plugin handles everything.
 void registerGoogleSignInButton() {
-  if (kIsWeb) {
-    // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory(
-      'google-signin-button',
-      (int viewId) => GoogleSignInPlugin().renderButton(),
-    );
-  }
+  // No-op
 }

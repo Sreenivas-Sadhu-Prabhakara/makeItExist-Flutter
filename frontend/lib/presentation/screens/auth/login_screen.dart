@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -150,59 +148,54 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Google Sign-In Button
-                  if (kIsWeb)
-                    SizedBox(
-                      height: 54,
-                      child: HtmlElementView(viewType: 'google-signin-button'),
-                    )
-                  else
-                    BlocBuilder<AuthBloc, AuthState>(
-                      builder: (context, state) {
-                        final isLoading = state is AuthLoading;
-                        return SizedBox(
-                          height: 54,
-                          child: ElevatedButton.icon(
-                            onPressed: isLoading
-                                ? null
-                                : () {
-                                    context
-                                        .read<AuthBloc>()
-                                        .add(AuthGoogleSignIn());
-                                  },
-                            icon: isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor:
-                                          AlwaysStoppedAnimation(Colors.white),
-                                    ),
-                                  )
-                                : Image.network(
-                                    'https://developers.google.com/identity/images/g-logo.png',
-                                    height: 24,
-                                    width: 24,
-                                    errorBuilder: (_, __, ___) =>
-                                        const Icon(Icons.login, size: 24),
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      final isLoading = state is AuthLoading;
+                      return SizedBox(
+                        height: 54,
+                        child: ElevatedButton.icon(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  print('🔐 [LoginScreen] Google Sign-In button pressed');
+                                  context
+                                      .read<AuthBloc>()
+                                      .add(AuthGoogleSignIn());
+                                },
+                          icon: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor:
+                                        AlwaysStoppedAnimation(Colors.white),
                                   ),
-                            label: Text(
-                              isLoading ? 'Signing in...' : 'Sign in with Google',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.black87,
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(color: Colors.grey[300]!),
-                              ),
+                                )
+                              : Image.network(
+                                  'https://developers.google.com/identity/images/g-logo.png',
+                                  height: 24,
+                                  width: 24,
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(Icons.login, size: 24),
+                                ),
+                          label: Text(
+                            isLoading ? 'Signing in...' : 'Sign in with Google',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black87,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: Colors.grey[300]!),
                             ),
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
+                  ),
 
                   const SizedBox(height: 32),
 

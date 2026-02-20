@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/network/api_exceptions.dart';
@@ -14,16 +13,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthGoogleSignIn>(_onGoogleSignIn);
     on<AuthEmailSignIn>(_onEmailSignIn);
     on<AuthLogout>(_onLogout);
-
-    if (kIsWeb) {
-      // Listen for Google user changes on web
-      authRepository.googleUserChanges.listen((account) async {
-        if (account != null) {
-          // User signed in via button, complete backend login
-          add(AuthGoogleSignIn());
-        }
-      });
-    }
   }
 
   Future<void> _onCheckStatus(AuthCheckStatus event, Emitter<AuthState> emit) async {
@@ -42,13 +31,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onGoogleSignIn(AuthGoogleSignIn event, Emitter<AuthState> emit) async {
+    print('🔐 [AuthBloc] AuthGoogleSignIn event received');
     emit(AuthLoading());
     try {
+      print('🔐 [AuthBloc] Calling authRepository.signInWithGoogle()...');
       final response = await authRepository.signInWithGoogle();
+      print('✅ [AuthBloc] Google sign-in successful: ${response.user.email}');
       emit(AuthAuthenticated(user: response.user));
     } on ApiException catch (e) {
+      print('❌ [AuthBloc] ApiException: ${e.message}');
       emit(AuthError(message: e.message));
     } catch (e) {
+      print('❌ [AuthBloc] Unexpected error: $e');
+      print('❌ [AuthBloc] Error type: ${e.runtimeType}');
       emit(AuthError(message: 'Sign-in failed. Please try again.'));
     }
   }
