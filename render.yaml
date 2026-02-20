@@ -33,5 +33,5 @@ services:
       - key: CORS_ALLOWED_ORIGINS
         value: "*"
       - key: GOOGLE_AUTH_CLIENT_ID
-        value: "147025453706-cpnsfk5s75kid26kctv8a0fdk80ebsht.apps.googleusercontent.com"
+        value: "147025453706-c1nqtf93b827ecbepu33s8me257cc38v.apps.googleusercontent.com"
         sync: false
