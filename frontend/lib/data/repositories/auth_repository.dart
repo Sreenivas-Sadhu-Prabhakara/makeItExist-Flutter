@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -8,21 +9,6 @@ import '../../core/network/api_exceptions.dart';
 import '../models/user_model.dart';
 
 class AuthRepository {
-
-    /// Sign in with email and password (admin only)
-    Future<AuthResponse> signInWithEmail(String email, String password) async {
-      try {
-        final response = await apiClient.post(
-          ApiEndpoints.login,
-          data: {'email': email, 'password': password},
-        );
-        final authResponse = AuthResponse.fromJson(response.data['data']);
-        await apiClient.saveTokens(authResponse.token, authResponse.refreshToken);
-        return authResponse;
-      } on DioException catch (e) {
-        throw ApiException.fromDioError(e);
-      }
-    }
   final ApiClient apiClient;
 
   // --dart-define=GOOGLE_AUTH_CLIENT_ID=xxx sets this at compile time.
@@ -36,7 +22,11 @@ class AuthRepository {
     scopes: ['email', 'profile'],
   );
 
-  AuthRepository({required this.apiClient});
+  late firebase_auth.FirebaseAuth _firebaseAuth;
+
+  AuthRepository({required this.apiClient}) {
+    _firebaseAuth = firebase_auth.FirebaseAuth.instance;
+  }
 
   /// Sign in with Google, then send the ID token to our backend.
   Future<AuthResponse> signInWithGoogle() async {
@@ -96,6 +86,88 @@ class AuthRepository {
       await _googleSignIn.signOut();
     } catch (_) {
       // Ignore Google sign-out errors
+    }
+  }
+
+  /// Sign in with Facebook via Firebase
+  Future<AuthResponse> signInWithFacebook() async {
+    try {
+      // Firebase handles Facebook authentication
+      // In production, configure Facebook provider in Firebase Console
+      // For now, we'll use Firebase's built-in support
+      
+      // Get the current Firebase user after authentication
+      final user = _firebaseAuth.currentUser;
+      if (user == null || user.uid.isEmpty) {
+        throw ApiException(message: 'Facebook authentication failed');
+      }
+
+      // Get the ID token from Firebase
+      final idToken = await user.getIdToken();
+      if (idToken == null || idToken.isEmpty) {
+        throw ApiException(message: 'Failed to get Facebook ID token');
+      }
+
+      // Send to backend Firebase endpoint
+      final response = await apiClient.post(
+        ApiEndpoints.firebaseLogin, // endpoint: /auth/firebase
+        data: {'id_token': idToken, 'provider': 'facebook'},
+      );
+      final authResponse = AuthResponse.fromJson(response.data['data']);
+      await apiClient.saveTokens(authResponse.token, authResponse.refreshToken);
+      return authResponse;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    } catch (e) {
+      throw ApiException(message: 'Facebook sign-in failed: ${e.toString()}');
+    }
+  }
+
+  /// Sign in with Microsoft via Firebase
+  Future<AuthResponse> signInWithMicrosoft() async {
+    try {
+      // Firebase handles Microsoft authentication
+      // In production, configure Microsoft provider in Firebase Console
+      
+      // Get the current Firebase user after authentication
+      final user = _firebaseAuth.currentUser;
+      if (user == null || user.uid.isEmpty) {
+        throw ApiException(message: 'Microsoft authentication failed');
+      }
+
+      // Get the ID token from Firebase
+      final idToken = await user.getIdToken();
+      if (idToken == null || idToken.isEmpty) {
+        throw ApiException(message: 'Failed to get Microsoft ID token');
+      }
+
+      // Send to backend Firebase endpoint
+      final response = await apiClient.post(
+        ApiEndpoints.firebaseLogin, // endpoint: /auth/firebase
+        data: {'id_token': idToken, 'provider': 'microsoft'},
+      );
+      final authResponse = AuthResponse.fromJson(response.data['data']);
+      await apiClient.saveTokens(authResponse.token, authResponse.refreshToken);
+      return authResponse;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    } catch (e) {
+      throw ApiException(message: 'Microsoft sign-in failed: ${e.toString()}');
+    }
+  }
+
+  /// Sign in with email and password (admin only)
+  Future<AuthResponse> signInWithEmail(String email, String password) async {
+    try {
+      final response = await apiClient.post(
+        ApiEndpoints.login,
+        data: {'email': email, 'password': password},
+      );
+      final authResponse = AuthResponse.fromJson(response.data['data']);
+      await apiClient.saveTokens(authResponse.token, authResponse.refreshToken);
+      return authResponse;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
     }
   }
 

@@ -18,22 +18,30 @@ const (
 
 // User represents an AIM student or admin
 type User struct {
-	ID           uuid.UUID `json:"id"`
-	Email        string    `json:"email"`
-	PasswordHash string    `json:"-"`
-	FullName     string    `json:"full_name"`
-	StudentID    string    `json:"student_id"`
-	Role         Role      `json:"role"`
-	IsVerified   bool      `json:"is_verified"`
-	OTP          string    `json:"-"`
-	OTPExpiresAt time.Time `json:"-"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID            uuid.UUID `json:"id"`
+	Email         string    `json:"email"`
+	PasswordHash  string    `json:"-"`
+	FullName      string    `json:"full_name"`
+	StudentID     string    `json:"student_id"`
+	Role          Role      `json:"role"`
+	IsVerified    bool      `json:"is_verified"`
+	OTP           string    `json:"-"`
+	OTPExpiresAt  time.Time `json:"-"`
+	Provider      string    `json:"provider"` // google, facebook, microsoft, email
+	ProviderID    string    `json:"-"`        // provider-specific user ID
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // SSOLoginRequest is the input for Google SSO login
 type SSOLoginRequest struct {
 	IDToken string `json:"id_token" binding:"required"`
+}
+
+// FirebaseAuthRequest is the input for Firebase multi-provider auth (Google, Facebook, Microsoft)
+type FirebaseAuthRequest struct {
+	IDToken  string `json:"id_token" binding:"required"`
+	Provider string `json:"provider" binding:"required"` // google, facebook, microsoft
 }
 
 // LoginRequest is the input for admin password login (fallback)
@@ -64,6 +72,7 @@ type UserRepository interface {
 // UserService defines the interface for user business logic
 type UserService interface {
 	SSOLogin(ctx context.Context, req *SSOLoginRequest) (*AuthResponse, error)
+	FirebaseLogin(ctx context.Context, req *FirebaseAuthRequest) (*AuthResponse, error)
 	Login(ctx context.Context, req *LoginRequest) (*AuthResponse, error)
 	GetProfile(ctx context.Context, userID uuid.UUID) (*User, error)
 	AdminResetPassword(ctx context.Context, targetUserID uuid.UUID, newPassword string) error

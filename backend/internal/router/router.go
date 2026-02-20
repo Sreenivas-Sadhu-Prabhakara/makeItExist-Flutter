@@ -50,7 +50,8 @@ func Setup(
 	auth := v1.Group("/auth")
 	{
 		auth.POST("/google", authHandler.GoogleLogin)
-		auth.POST("/login", authHandler.Login) // admin password fallback
+		auth.POST("/firebase", authHandler.FirebaseLogin) // Google, Facebook, Microsoft
+		auth.POST("/login", authHandler.Login)            // admin password fallback
 	}
 
 	// === Protected Routes (Auth Required) ===

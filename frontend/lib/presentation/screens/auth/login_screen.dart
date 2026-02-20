@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -137,8 +136,8 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Divider
-                  Row(
-                    children: const [
+                  const Row(
+                    children: [
                       Expanded(child: Divider()),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8),
@@ -151,7 +150,7 @@ class LoginScreen extends StatelessWidget {
 
                   // Google Sign-In Button
                   if (kIsWeb)
-                    SizedBox(
+                    const SizedBox(
                       height: 54,
                       child: HtmlElementView(viewType: 'google-signin-button'),
                     )
@@ -204,6 +203,94 @@ class LoginScreen extends StatelessWidget {
                       },
                     ),
 
+                  const SizedBox(height: 16),
+
+                  // Facebook Sign-In Button
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      final isLoading = state is AuthLoading;
+                      return SizedBox(
+                        height: 54,
+                        child: ElevatedButton.icon(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  context
+                                      .read<AuthBloc>()
+                                      .add(AuthFacebookSignIn());
+                                },
+                          icon: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor:
+                                        AlwaysStoppedAnimation(Colors.white),
+                                  ),
+                                )
+                              : const Icon(Icons.facebook, size: 24),
+                          label: Text(
+                            isLoading ? 'Signing in...' : 'Sign in with Facebook',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1877F2),
+                            foregroundColor: Colors.white,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Microsoft Sign-In Button
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      final isLoading = state is AuthLoading;
+                      return SizedBox(
+                        height: 54,
+                        child: ElevatedButton.icon(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  context
+                                      .read<AuthBloc>()
+                                      .add(AuthMicrosoftSignIn());
+                                },
+                          icon: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor:
+                                        AlwaysStoppedAnimation(Colors.white),
+                                  ),
+                                )
+                              : const Icon(Icons.vpn_key, size: 24),
+                          label: Text(
+                            isLoading ? 'Signing in...' : 'Sign in with Microsoft',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0078D4),
+                            foregroundColor: Colors.white,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
                   const SizedBox(height: 32),
 
                   // Info box
@@ -237,7 +324,7 @@ class LoginScreen extends StatelessWidget {
                             SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'Your account is created automatically on first sign-in, or use your admin credentials.',
+                                'Multi-provider authentication via Google, Facebook, Microsoft, or admin credentials.',
                                 style: TextStyle(fontSize: 13),
                               ),
                             ),

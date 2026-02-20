@@ -10,6 +10,7 @@ class ApiEndpoints {
 
   // Auth
   static const String googleLogin = '/auth/google';
+  static const String firebaseLogin = '/auth/firebase';
   static const String login = '/auth/login';
   static const String profile = '/auth/profile';
 
