@@ -26,7 +26,7 @@ dependencies:
   
   # Firebase & Multi-Provider Auth
   firebase_core: ^2.24.0
-  firebase_auth: ^4.14.0
+  firebase_auth: ^4.17.0
   google_sign_in: ^6.2.1
   sign_in_with_apple: ^5.0.0
   
