@@ -5,6 +5,10 @@ class AuthCheckStatus extends AuthEvent {}
 
 class AuthGoogleSignIn extends AuthEvent {}
 
+class AuthFacebookSignIn extends AuthEvent {}
+
+class AuthMicrosoftSignIn extends AuthEvent {}
+
 class AuthEmailSignIn extends AuthEvent {
 	final String email;
 	final String password;

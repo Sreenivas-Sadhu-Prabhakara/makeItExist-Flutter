@@ -35,3 +35,15 @@ services:
       - key: GOOGLE_AUTH_CLIENT_ID
         value: "147025453706-c1nqtf93b827ecbepu33s8me257cc38v.apps.googleusercontent.com"
         sync: false
+      - key: FIREBASE_API_KEY
+        value: ""
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        value: ""
+        sync: false
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        value: ""
+        sync: false
+      - key: FIREBASE_APP_ID
+        value: ""
+        sync: false

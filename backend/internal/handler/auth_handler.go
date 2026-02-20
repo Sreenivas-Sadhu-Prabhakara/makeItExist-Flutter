@@ -46,6 +46,42 @@ func (h *AuthHandler) GoogleLogin(c *gin.Context) {
 	})
 }
 
+// FirebaseLogin handles multi-provider Firebase auth (Google, Facebook, Microsoft)
+// POST /api/v1/auth/firebase
+func (h *AuthHandler) FirebaseLogin(c *gin.Context) {
+	var req domain.FirebaseAuthRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "validation_error",
+			"message": "id_token and provider are required",
+		})
+		return
+	}
+
+	// Validate provider
+	if req.Provider != "google" && req.Provider != "facebook" && req.Provider != "microsoft" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "validation_error",
+			"message": "provider must be google, facebook, or microsoft",
+		})
+		return
+	}
+
+	resp, err := h.authService.FirebaseLogin(c.Request.Context(), &req)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "firebase_login_failed",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login successful",
+		"data":    resp,
+	})
+}
+
 // Login handles admin password-based login (fallback)
 // POST /api/v1/auth/login
 func (h *AuthHandler) Login(c *gin.Context) {

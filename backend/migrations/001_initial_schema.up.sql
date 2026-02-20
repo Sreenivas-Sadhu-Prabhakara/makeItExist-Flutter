@@ -19,6 +19,8 @@ CREATE TABLE users (
     is_verified     BOOLEAN NOT NULL DEFAULT FALSE,
     otp             VARCHAR(10),
     otp_expires_at  TIMESTAMPTZ,
+    provider        VARCHAR(50) DEFAULT 'email' CHECK (provider IN ('email', 'google', 'facebook', 'microsoft')),
+    provider_id     VARCHAR(255),
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -26,6 +28,7 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_student_id ON users(student_id);
 CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_provider ON users(provider);
 
 -- ============================================
 -- BUILD REQUESTS TABLE

@@ -24,8 +24,11 @@ dependencies:
   shared_preferences: ^2.2.2
   flutter_secure_storage: ^9.0.0
   
-  # SSO
+  # Firebase & Multi-Provider Auth
+  firebase_core: ^2.24.0
+  firebase_auth: ^4.14.0
   google_sign_in: ^6.2.1
+  sign_in_with_apple: ^5.0.0
   
   # UI
   google_fonts: ^6.1.0
